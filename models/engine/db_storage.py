@@ -40,22 +40,6 @@ class DBStorage:
         if HBNB_ENV == "test":
             Base.metadata.drop_all(self.__engine)
 
-    def get(self, cls, id):
-        """gets an object"""
-        result = self.__session.query(cls)
-        for objs in result:
-            if objs.id == id:
-                return objs
-        return None
-
-    def count(self, cls=None):
-        """returns count of object"""
-        total = 0
-        for clss in classes:
-            if clss is None or clss is classes[clss] or clss is clss:
-                total += len(self.__session.query(classes[clss]).all())
-        return total
-
     def all(self, cls=None):
         """query on the current database session"""
         new_dict = {}
@@ -74,6 +58,22 @@ class DBStorage:
     def save(self):
         """commit all changes of the current database session"""
         self.__session.commit()
+
+    def get(self, cls, id):
+        """gets an object"""
+        result = self.__session.query(cls)
+        for objs in result:
+            if objs.id == id:
+                return objs
+        return None
+
+    def count(self, cls=None):
+        """returns count of object"""
+        total = 0
+        for clss in classes:
+            if clss is None or clss is classes[clss] or clss is clss:
+                total += len(self.__session.query(classes[clss]).all())
+        return total
 
     def delete(self, obj=None):
         """delete from the current database session obj if not None"""
