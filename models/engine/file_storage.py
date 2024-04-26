@@ -29,9 +29,9 @@ class FileStorage:
         result = self.all(cls)
         for objs in result.values():
             if objs.id == id:
-                return 
+                return
         return None
-    
+
     def count(self, cls=None):
         """returns count of object in the storage"""
         if cls is not None:
@@ -69,7 +69,7 @@ class FileStorage:
                 jo = json.load(f)
             for key in jo:
                 self.__objects[key] = classes[jo[key]["__class__"]](**jo[key])
-        except:
+        except Exception:
             pass
 
     def delete(self, obj=None):
