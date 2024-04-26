@@ -40,60 +40,53 @@ class DBStorage:
         if HBNB_ENV == "test":
             Base.metadata.drop_all(self.__engine)
 
+    def get(self, cls, id):
+        """gets an object"""
+        result = self.__session.query(cls)
+        for objs in result:
+            if objs.id == id:
+                return objs
+        return None
+
+    def count(self, cls=None):
+        """returns count of object"""
+        total = 0
+        for clss in classes:
+            if clss is None or clss is classes[clss] or clss is clss:
+                total += len(self.__session.query(classes[clss]).all())
+        return total
+
     def all(self, cls=None):
-        """ return all objects """
-        all_obj_dict = {}
+        """query on the current database session"""
+        new_dict = {}
         for clss in classes:
             if cls is None or cls is classes[clss] or cls is clss:
                 objs = self.__session.query(classes[clss]).all()
                 for obj in objs:
                     key = obj.__class__.__name__ + '.' + obj.id
-                    all_obj_dict[key] = obj
-        return (all_obj_dict)
+                    new_dict[key] = obj
+        return (new_dict)
 
     def new(self, obj):
-        """ add a new object to the current database """
+        """add the object to the current database session"""
         self.__session.add(obj)
 
     def save(self):
-        """ save all changes of the current database"""
+        """commit all changes of the current database session"""
         self.__session.commit()
 
     def delete(self, obj=None):
-        """ delete object from the current database """
+        """delete from the current database session obj if not None"""
         if obj is not None:
             self.__session.delete(obj)
 
-    def get(self, cls, id):
-        """ gets an object """
-        from models import storage
-        result = self.all(cls)
-        for item in result.values():
-            if item.id == id:
-                return item
-        return None
-
-    def count(self, cls=None):
-        """ returns count of object """
-        from models import storage
-        total = 0
-
-        if cls:
-            all_data = storage.all(cls).values()
-        else:
-            all_data = storage.all().values()
-
-        for _ in all_data:
-            total += 1
-        return total
-
     def reload(self):
-        """ reloads the database"""
+        """reloads data from the database"""
         Base.metadata.create_all(self.__engine)
-        sess = sessionmaker(bind=self.__engine, expire_on_commit=False)
-        Session = scoped_session(sess)
+        sess_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
+        Session = scoped_session(sess_factory)
         self.__session = Session
 
     def close(self):
-        """ call remove() method to close database """
+        """call remove() method on the private session attribute"""
         self.__session.remove()
