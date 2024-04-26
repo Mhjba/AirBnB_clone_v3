@@ -12,13 +12,13 @@ from models.user import User
 
 
 @app_views.route("/status", strict_slashes=False)
-def view_status():
+def status_check():
     """View function that return a json message"""
     return jsonify({"status": "OK"})
 
 
 @app_views.route("/stats", strict_slashes=False)
-def view_stats():
+def get_stats():
     """Veiw function that retrieves the number of each object by type"""
     return jsonify({
         "amenities": models.storage.count(Amenity),
