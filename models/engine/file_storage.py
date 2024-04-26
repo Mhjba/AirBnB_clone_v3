@@ -30,7 +30,7 @@ class FileStorage:
         result = self.all(cls)
         for objs in result.values():
             if objs.id == id:
-                return 
+                return
         return None
     
     def count(self, cls=None):
