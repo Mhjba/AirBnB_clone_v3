@@ -3,20 +3,18 @@
 Contains the class DBStorage
 """
 
-from os import getenv
-
-import sqlalchemy
-from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
-
 import models
 from models.amenity import Amenity
-from models.base_model import Base, BaseModel
+from models.base_model import BaseModel, Base
 from models.city import City
 from models.place import Place
 from models.review import Review
 from models.state import State
 from models.user import User
+from os import getenv
+import sqlalchemy
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
 
 classes = {"Amenity": Amenity, "City": City,
            "Place": Place, "Review": Review, "State": State, "User": User}
@@ -41,6 +39,22 @@ class DBStorage:
                                              HBNB_MYSQL_DB))
         if HBNB_ENV == "test":
             Base.metadata.drop_all(self.__engine)
+
+    def get(self, cls, id):
+        """gets an object"""
+        result = self.__session.query(cls)
+        for objs in result:
+            if objs.id == id:
+                return objs
+        return None
+
+    def count(self, cls=None):
+        """returns count of object"""
+        total = 0
+        for clss in classes:
+            if clss is None or clss is classes[clss] or clss is clss:
+                total += len(self.__session.query(classes[clss]).all())
+        return total
 
     def all(self, cls=None):
         """query on the current database session"""
@@ -76,19 +90,3 @@ class DBStorage:
     def close(self):
         """call remove() method on the private session attribute"""
         self.__session.remove()
-
-    def get(self, cls, id):
-        """Return one object or `None` if not found"""
-        objects = self.__session.query(cls)
-        for obj in objects:
-            if obj.id == id:
-                return obj
-        return None
-
-    def count(self, cls=None):
-        """Return the number of objects in storage"""
-        total = 0
-        for clss in classes:
-            if cls is None or cls is classes[clss] or cls is clss:
-                total += len(self.__session.query(classes[clss]).all())
-        return total
