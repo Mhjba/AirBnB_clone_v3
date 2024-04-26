@@ -34,9 +34,8 @@ class FileStorage:
 
     def count(self, cls=None):
         """returns count of object in the storage"""
-        if cls is not None:
-            return len(self.all(cls))
-        return len(self.__objects)
+        result = self.all(cls)
+        return len(result)
 
     def all(self, cls=None):
         """returns the dictionary __objects"""
