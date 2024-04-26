@@ -1,102 +1,81 @@
 #!/usr/bin/python3
-"""Handles all RESTful API actions for `Amenity`"""
+
+"""
+Module for handling HTTP requests related to Amenity objects
+"""
+
 from api.v1.views import app_views
 from models import storage
 from models.amenity import Amenity
+from flask import abort, jsonify, make_response, request
 
-from flask import jsonify, abort, request
 
-
-@app_views.route("/amenities")
-def amenities():
-    """Retrieve list of all `Amenity` objects
-
-    Returns:
-        `flask.Response`: List of all the amenities
+@app_views.route("/amenities", methods=['GET'], strict_slashes=False)
+def get_all_amen():
     """
-    amenities = storage.all(Amenity)
-    result = []
-
-    for amenity in amenities.values():
-        result.append(amenity.to_dict())
-
-    return jsonify(result)
-
-
-@app_views.route("/amenities/<amenity_id>")
-def amenity(amenity_id):
-    """Retrieve one `Amenity`
-
-    Args:
-        amenity_id (str): Amenity identifier
-
-    Returns:
-        flask.Response: An amenity in json
+    Retrieve all amenities
     """
-    amenity = storage.get(Amenity, amenity_id)
-    if not amenity:
+    all_amen = storage.all(Amenity)
+    amen_json = []
+    for amenity in all_amen.values():
+        amen_json.append(amenity.to_dict())
+    return jsonify(amen_json)
+
+
+@app_views.route("/amenities/<string:amenity_id>", methods=['GET'],
+                 strict_slashes=False)
+def get_amenity_by_id(amenity_id):
+    """
+    Retrieve an amenity by id
+    """
+    amen = storage.get(Amenity, amenity_id)
+    if amen is None:
         abort(404)
+    return jsonify(amen.to_dict())
 
-    return jsonify(amenity.to_dict())
 
-
-@app_views.route("/amenities/<amenity_id>", methods=["DELETE"])
-def delete_amenity(amenity_id):
-    """Delete an amenity.
-
-    Args:
-        amenity_id (str): The ID of the amenity.
-
-    Returns:
-        dict: An empty JSON.
-
-    Raises:
-        404: If the specified amenity_id does not exist.
+@app_views.route("/amenities/<string:amenity_id>", methods=['DELETE'],
+                 strict_slashes=False)
+def delete_amenity_by_id(amenity_id):
     """
-    amenity = storage.get(Amenity, amenity_id)
-    if amenity is None:
+    Delete an amenity by id
+    """
+    amen = storage.get(Amenity, amenity_id)
+    if amen is None:
         abort(404)
-
-    amenity.delete()
+    storage.delete(amen)
     storage.save()
+    return jsonify({}), 200
 
-    return jsonify({})
 
-
-@app_views.route("/amenities", methods=["POST"])
-def create_amenity():
-    """Create an amenity
-
-    Returns:
-        dict: New amenity in JSON
-
-    Raises:
-        400: If request body is not a valid JSON
-        400: If the payload does not contain the key `name`
+@app_views.route("/amenities", methods=['POST'], strict_slashes=False)
+def create_new_amenity():
     """
-    payload = request.get_json()
-    if not payload:
-        abort(400, "Not a JSON")
-    if "name" not in payload:
-        abort(400, "Missing name")
+    Create a new amenity
+    """
+    amen_json = request.get_json()
+    if amen_json is None:
+        abort(400, 'Not a JSON')
+    if 'name' not in amen_json:
+        abort(400, 'Missing name')
+    amen = Amenity(**amen_json)
+    amen.save()
+    return jsonify(amen.to_dict()), 201
 
-    amenity = Amenity(**payload)
-    amenity.save()
 
-    return jsonify(amenity.to_dict())
-
-
-@app_views.route("/amenities/<amenity_id>", methods=["PUT"])
-def update_amenity(amenity_id):
-    amenity = storage.get(Amenity, amenity_id)
-    payload = request.get_json()
-    if not amenity:
+@app_views.route("/amenities/<string:amenity_id>", methods=['PUT'],
+                 strict_slashes=False)
+def update_amenity_by_id(amenity_id):
+    """
+    Update an amenity by id
+    """
+    amen = storage.get(Amenity, amenity_id)
+    if amen is None:
         abort(404)
-    if not payload:
-        abort(400, "Not a JSON")
-
-    key = "name"
-    setattr(amenity, key, payload[key])
-    amenity.save()
-
-    return jsonify(amenity.to_dict())
+    amen_json = request.get_json()
+    if amen_json is None:
+        abort(400, 'Not a JSON')
+    for idx, idy in amen_json.items():
+        setattr(amen, idx, idy)
+    amen.save()
+    return jsonify(amen.to_dict())
