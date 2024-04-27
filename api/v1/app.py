@@ -1,25 +1,25 @@
 #!/usr/bin/python3
-""" Flask Application """
+""" Application """
 from flask import Flask, Blueprint, jsonify
-from models import storage
 from api.v1.views import app_views
-from os import getenv
+from models import storage
 from flask_cors import CORS
+from os import getenv
 
 app = Flask(__name__)
 app.register_blueprint(app_views)
-cors = CORS(app, resources={r"/*": {"origins": "0.0.0.0"}})
+cors = CORS(app, resources={r"/api/*": {"origins": "0.0.0.0"}})
 
 
 @app.teardown_appcontext
-def teardown_db(e):
-    """ teardown app """
+def teardown_app(e):
+    """ closes storage engine """
     storage.close()
 
 
 @app.errorhandler(404)
-def page_404(err):
-    """ handle page not found """
+def not_found(err):
+    """ handles 404 error and gives json formatted response """
     return jsonify({"error": "Not found"}), 404
 
 
