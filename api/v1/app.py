@@ -5,6 +5,7 @@ from api.v1.views import app_views
 from models import storage
 from flask_cors import CORS
 from os import getenv
+import models
 
 app = Flask(__name__)
 app.register_blueprint(app_views)
@@ -14,7 +15,7 @@ cors = CORS(app, resources={r"/api/*": {"origins": "0.0.0.0"}})
 @app.teardown_appcontext
 def teardown_app(e):
     """ closes storage engine """
-    storage.close()
+    models.storage.close()
 
 
 @app.errorhandler(404)
