@@ -10,18 +10,8 @@ from models.amenity import Amenity
 
 
 @app_views.route("/places/<place_id>/amenities")
-def amenities_of_a_place(place_id):
-    """Retrieve all amenities of a place.
-
-    Args:
-        place_id (str): ID of the place to retrieve its amenities.
-
-    Returns:
-        list: All amenities of the place in JSON.
-
-    Raises:
-        404: If the specified place_id does not exist.
-    """
+def all_place_amenities(place_id):
+    """ all amenities of a place. """
     place = storage.get(Place, place_id)
     if not place:
         abort(404)
@@ -38,20 +28,8 @@ def amenities_of_a_place(place_id):
 
 @app_views.route("/places/<place_id>/amenities/<amenity_id>",
                  methods=["DELETE"])
-def unlink_amenity_from_a_place(place_id, amenity_id):
-    """Unlink amenity from a place.
-
-    Args:
-        place_id (str): ID of the place.
-        amenity_id (str): ID of the amenity.
-
-    Returns:
-        dict: An empty JSON.
-
-    Raises:
-        404: If the specified place_id or amenity_id does not exist or if the
-             amenity is not linked to the place before the request.
-    """
+def delete_place_amenity(place_id, amenity_id):
+    """ Deletes a Amenity object """
     place = storage.get(Place, place_id)
     amenity = storage.get(Amenity, amenity_id)
     if not place:
@@ -70,20 +48,9 @@ def unlink_amenity_from_a_place(place_id, amenity_id):
     return jsonify({})
 
 
-@app_views.route("/places/<place_id>/amenities/<amenity_id>", methods=["POST"])
-def link_amenity_to_a_place(place_id, amenity_id):
-    """Link amenity to a place.
-
-    Args:
-        place_id (str): ID of the place.
-        amenity_id (str): ID of the amenity.
-
-    Returns:
-        dict: The amenity linked.
-
-    Raises:
-        404: If the specified place_id or amenity_id does not exist.
-    """
+@app_views.route("/places/<place_id>/amenities/<amenity_id>", methods=["GET"])
+def get_place_amenity(place_id, amenity_id):
+    """ Retrieves a Amenity object """
     place = storage.get(Place, place_id)
     amenity = storage.get(Amenity, amenity_id)
     if not place:
