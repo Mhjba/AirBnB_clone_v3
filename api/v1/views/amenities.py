@@ -1,81 +1,73 @@
 #!/usr/bin/python3
-
 """
-Module for handling HTTP requests related to Amenity objects
+View for Amenities that handles all RESTful API actions
 """
 
-from api.v1.views import app_views
+from flask import jsonify, request, abort
 from models import storage
 from models.amenity import Amenity
-from flask import abort, jsonify, make_response, request
+from api.v1.views import app_views
 
 
-@app_views.route("/amenities", methods=['GET'], strict_slashes=False)
-def get_all_amen():
-    """
-    Retrieve all amenities
-    """
-    all_amen = storage.all(Amenity)
-    amen_json = []
-    for amenity in all_amen.values():
-        amen_json.append(amenity.to_dict())
-    return jsonify(amen_json)
+@app_views.route('/amenities', methods=['GET'], strict_slashes=False)
+def amenities_all():
+    """ returns list of all Amenity objects """
+    amenities_all = []
+    amenities = storage.all("Amenity").values()
+    for amenity in amenities:
+        amenities_all.append(amenity.to_json())
+    return jsonify(amenities_all)
 
 
-@app_views.route("/amenities/<string:amenity_id>", methods=['GET'],
-                 strict_slashes=False)
-def get_amenity_by_id(amenity_id):
-    """
-    Retrieve an amenity by id
-    """
-    amen = storage.get(Amenity, amenity_id)
-    if amen is None:
+@app_views.route('/amenities/<amenity_id>', methods=['GET'])
+def amenity_get(amenity_id):
+    """ handles GET method """
+    amenity = storage.get("Amenity", amenity_id)
+    if amenity is None:
         abort(404)
-    return jsonify(amen.to_dict())
+    amenity = amenity.to_json()
+    return jsonify(amenity)
 
 
-@app_views.route("/amenities/<string:amenity_id>", methods=['DELETE'],
-                 strict_slashes=False)
-def delete_amenity_by_id(amenity_id):
-    """
-    Delete an amenity by id
-    """
-    amen = storage.get(Amenity, amenity_id)
-    if amen is None:
+@app_views.route('/amenities/<amenity_id>', methods=['DELETE'])
+def amenity_delete(amenity_id):
+    """ handles DELETE method """
+    empty_dict = {}
+    amenity = storage.get("Amenity", amenity_id)
+    if amenity is None:
         abort(404)
-    storage.delete(amen)
+    storage.delete(amenity)
     storage.save()
-    return jsonify({}), 200
+    return jsonify(empty_dict), 200
 
 
-@app_views.route("/amenities", methods=['POST'], strict_slashes=False)
-def create_new_amenity():
-    """
-    Create a new amenity
-    """
-    amen_json = request.get_json()
-    if amen_json is None:
-        abort(400, 'Not a JSON')
-    if 'name' not in amen_json:
-        abort(400, 'Missing name')
-    amen = Amenity(**amen_json)
-    amen.save()
-    return jsonify(amen.to_dict()), 201
+@app_views.route('/amenities', methods=['POST'], strict_slashes=False)
+def amenity_post():
+    """ handles POST method """
+    data = request.get_json()
+    if data is None:
+        abort(400, "Not a JSON")
+    if 'name' not in data:
+        abort(400, "Missing name")
+    amenity = Amenity(**data)
+    amenity.save()
+    amenity = amenity.to_json()
+    return jsonify(amenity), 201
 
 
-@app_views.route("/amenities/<string:amenity_id>", methods=['PUT'],
-                 strict_slashes=False)
-def update_amenity_by_id(amenity_id):
-    """
-    Update an amenity by id
-    """
-    amen = storage.get(Amenity, amenity_id)
-    if amen is None:
+@app_views.route('/amenities/<amenity_id>', methods=['PUT'])
+def amenity_put(amenity_id):
+    """ handles PUT method """
+    amenity = storage.get("Amenity", amenity_id)
+    if amenity is None:
         abort(404)
-    amen_json = request.get_json()
-    if amen_json is None:
-        abort(400, 'Not a JSON')
-    for idx, idy in amen_json.items():
-        setattr(amen, idx, idy)
-    amen.save()
-    return jsonify(amen.to_dict())
+    data = request.get_json()
+    if data is None:
+        abort(400, "Not a JSON")
+    for key, value in data.items():
+        ignore_keys = ["id", "created_at", "updated_at"]
+        if key not in ignore_keys:
+            amenity.bm_update(key, value)
+    amenity.save()
+    amenity = amenity.to_json()
+    return jsonify(amenity), 200
