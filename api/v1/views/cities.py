@@ -13,11 +13,13 @@ import models
 @app_views.route("/states/<string:state_id>/cities", methods=['GET'])
 def get_cities(state_id):
     """ get all cities by state id """
-    all_state = models.storage.get(State, state_id)
-    if all_state is None:
-        abort(404, "State not found")
-    list_cities = [city.to_dict() for city in all_state.cities]
-    return jsonify(list_cities)
+    state = models.storage.get(State, state_id)
+    if not state:
+        abort(404)
+    result = []
+    for city in state.cities:
+        result.append(city.to_dict())
+    return jsonify(result)
 
 
 @app_views.route("/cities/<string:city_id>", methods=['GET'])
