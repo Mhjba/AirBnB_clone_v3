@@ -18,7 +18,7 @@ def list_users():
 
 
 @app_views.route("/users/<user_id>", methods=['GET'])
-def one_user(user_id):
+def get_user(user_id):
     """Get one user
     """
     user = storage.get(User, user_id)
