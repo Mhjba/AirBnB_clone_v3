@@ -2,23 +2,23 @@
 """ index file """
 from api.v1.views import app_views
 from flask import jsonify
-from models import storage
+import models
 
 
-@app_views.route("/status", strict_slashes=False)
-def status_check():
-    """ returns status OK """
+@app_views.route("/status")
+def status():
+    """Status of my API"""
     return jsonify({"status": "OK"})
 
 
-@app_views.route("/stats", strict_slashes=False)
-def get_stats():
+@app_views.route("/status")
+def stats():
     """ returns count of all classes' objects """
     return jsonify({
-        "amenities": storage.count("Amenity"),
-        "cities": storage.count("City"),
-        "places": storage.count("Place"),
-        "reviews": storage.count("Review"),
-        "states": storage.count("State"),
-        "users": storage.count("User")
+        "amenities": models.storage.count("Amenity"),
+        "cities": models.storage.count("City"),
+        "places": models.storage.count("Place"),
+        "reviews": models.storage.count("Review"),
+        "states": models.storage.count("State"),
+        "users": models.storage.count("User")
     })
