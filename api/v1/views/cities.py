@@ -13,13 +13,13 @@ import models
 @app_views.route("/states/<string:state_id>/cities", methods=['GET'])
 def get_cities(state_id):
     """ get all cities by state id """
-    state = models.storage.get(State, state_id)
-    if not state:
+    all_state = models.storage.get(State, state_id)
+    if not all_state:
         abort(404)
-    result = []
-    for city in state.cities:
-        result.append(city.to_dict())
-    return jsonify(result)
+    re_cities = []
+    for city in all_state.cities:
+        re_cities.append(city.to_dict())
+    return jsonify(re_cities)
 
 
 @app_views.route("/cities/<string:city_id>", methods=['GET'])
@@ -64,10 +64,10 @@ def update_city(city_id):
     all_city = models.storage.get(City, city_id)
     if all_city is None:
         abort(404, "City not found")
-    city_json = request.get_json()
-    if city_json is None:
+    city_obj = request.get_json()
+    if city_obj is None:
         abort(400, 'Not a JSON')
-    for k, v in city_json.items():
-        setattr(all_city, k, v)
+    for objs, v in city_obj.items():
+        setattr(all_city, objs, v)
     all_city.save()
     return jsonify(all_city.to_dict()), 200
