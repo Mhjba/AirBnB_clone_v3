@@ -11,31 +11,29 @@ from flask import jsonify, request, abort
 
 @app_views.route('/states/', methods=['GET'])
 def list_states():
-    '''Retrieves a list of all State objects'''
+    """ Retrieves a list of all State objects """
     list_states = [obj.to_dict() for obj in storage.all("State").values()]
     return jsonify(list_states)
 
 
-@app_views.route("/states/<string:state_id>", methods=['GET'],
-                 strict_slashes=False)
+@app_views.route("/states/<string:state_id>", methods=['GET'])
 def get_state(state_id):
     """ get a state by id """
-    req_state = storage.get(State, state_id)
-    if req_state is None:
+    all_state = storage.get(State, state_id)
+    if all_state is None:
         abort(404)
-    return jsonify(req_state.to_dict())
+    return jsonify(all_state.to_dict())
 
 
-@app_views.route("/states/<string:state_id>", methods=['DELETE'],
-                 strict_slashes=False)
+@app_views.route("/states/<state_id>", methods=["DELETE"])
 def delete_state(state_id):
     """ delete a state by id """
-    req_state = storage.get(State, state_id)
-    if req_state is None:
+    state = storage.get(State, state_id)
+    if state is None:
         abort(404)
-    storage.delete(req_state)
+    state.delete()
     storage.save()
-    return jsonify({}), 200
+    return jsonify({})
 
 
 @app_views.route("/states", methods=['POST'],
@@ -55,8 +53,7 @@ def create_new_state():
     return new_state.to_dict(), 201
 
 
-@app_views.route("/states/<state_id>", methods=['PUT', 'GET'],
-                 strict_slashes=False)
+@app_views.route("/states/<state_id>", methods=['PUT', 'GET'])
 def update_state(state_id):
     """ Updates state info """
     state = storage.get(State, state_id)
