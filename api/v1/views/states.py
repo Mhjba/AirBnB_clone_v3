@@ -40,11 +40,11 @@ def delete_state(state_id):
 def create_state():
     """ create a new state """
     if not request.is_json:
-        abort(400, "Not a JSON")
+        abort(400, description="Not a JSON")
     req_state = request.get_json()
 
     if "name" not in req_state:
-        abort(400, "Missing name")
+        abort(400, description="Missing name")
 
     all_state = State(**req_state)
     storage.new(all_state)
@@ -61,7 +61,7 @@ def update_state(state_id):
         abort(404)
 
     if not request.is_json:
-        abort(400, "Not a JSON")
+        abort(400, description="Not a JSON")
     req_state = request.get_json()
 
     for obj, v in req_state.items():
