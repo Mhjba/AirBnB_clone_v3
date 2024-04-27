@@ -17,16 +17,15 @@ def list_users():
     return jsonify(list_users)
 
 
-@app_views.route("/users/<string:user_id>", methods=['GET'],
-                 strict_slashes=False)
-def get_user_by_id(user_id):
+@app_views.route("/users/<user_id>", methods=['GET'])
+def one_user(user_id):
+    """Get one user
     """
-    Retrieve an user by id
-    """
-    result = storage.get(User, user_id)
-    if result is None:
+    user = storage.get(User, user_id)
+    if not user:
         abort(404)
-    return jsonify(result.to_dict())
+
+    return jsonify(user.to_dict())
 
 
 @app_views.route('/users/<user_id>', methods=['DELETE'])
