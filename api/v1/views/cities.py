@@ -49,7 +49,8 @@ def delete_city_by_id(city_id):
     return jsonify({}), 200
 
 
-@app_views.route("/states/<string:state_id>/cities", methods=['POST'])
+@app_views.route("/states/<string:state_id>/cities", methods=['POST'],
+                 strict_slashes=False)
 def create_city_with_state_id(state_id):
     """
     Create a city by state id
