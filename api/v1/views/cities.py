@@ -16,7 +16,7 @@ def get_cities(state_id):
     state = models.storage.get(State, state_id)
     if not state:
         return abort(404)
-    cities =[city.to_dict() for city in state.cities]
+    cities = [city.to_dict() for city in state.cities]
     return jsonify(cities)
 
 
@@ -55,7 +55,7 @@ def create_city(state_id):
     data = request.get_json()
     if "name" not in data:
         return abort(400, "Missing name")
-    data ["state_id"] = state_id
+    data["state_id"] = state_id
 
     city = City(**data)
     city.save()
