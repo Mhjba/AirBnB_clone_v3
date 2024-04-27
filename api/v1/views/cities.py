@@ -11,8 +11,9 @@ from models.city import City
 from models.state import State
 
 
-@app_views.route("/states/<state_id>/cities")
-def cities_in_a_state(state_id):
+@app_views.route('/states/<state_id>/cities', methods=['POST'])
+@app_views.route('/states/<state_id>/cities/', methods=['POST'])
+def create_city(state_id):
     """
     Retrieve all cities by state id
     """
@@ -23,8 +24,8 @@ def cities_in_a_state(state_id):
     return jsonify(cities_list)
 
 
-@app_views.route("/cities/<city_id>")
-def city(city_id):
+@app_views.route('/cities/<city_id>', methods=['GET'])
+def get_city(city_id):
     """Retrieve a `City`"""
     """
     Retrieve a city by id
@@ -47,12 +48,12 @@ def delete_city(city_id):
     return jsonify({}), 200
 
 
-@app_views.route("/states/<state_id>/cities", methods=["POST"])
-def create_city(state_id):
+@app_views.route('/cities/<city_id>', methods=['DELETE'])
+def delete_city(city_id):
     """
     Create a city by state id
     """
-    req_state = storage.get(State, state_id)
+    req_state = storage.get(State, city_id)
     if req_state is None:
         abort(404, "State not found")
     city_json = request.get_json()
@@ -61,13 +62,13 @@ def create_city(state_id):
     if 'name' not in city_json:
         abort(400, 'Missing "name"')
     new_city = City(**city_json)
-    new_city.state_id = state_id
+    new_city.state_id = city_id
     new_city.save()
     return jsonify(new_city.to_dict()), 201
 
 
-@app_views.route("/cities/<city_id>", methods=["PUT"])
-def update_city(city_id):
+@app_views.route('/cities/<city_id>', methods=['PUT'])
+def updates_city(city_id):
     """
     Update a city by id
     """
