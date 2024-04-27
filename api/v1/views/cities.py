@@ -36,7 +36,8 @@ def get_city_by_id(city_id):
     return jsonify(req_city.to_dict())
 
 
-@app_views.route("/cities/<string:city_id>", methods=['DELETE'])
+@app_views.route("/cities/<string:city_id>", methods=['DELETE'],
+                 strict_slashes=False)
 def delete_city_by_id(city_id):
     """
     Delete a city by id
