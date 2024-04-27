@@ -25,7 +25,8 @@ def get_state(state_id):
     return jsonify(all_state.to_dict())
 
 
-@app_views.route("/states/<state_id>", methods=["DELETE"])
+@app_views.route("/states/<string:state_id>", methods=['DELETE'],
+                 strict_slashes=False)
 def delete_state(state_id):
     """ delete a state by id """
     req_state = storage.get(State, state_id)
@@ -36,36 +37,38 @@ def delete_state(state_id):
     return jsonify({}), 200
 
 
-@app_views.route("/states", methods=['POST'])
-def create_state():
+@app_views.route("/states", methods=['POST'],
+                 strict_slashes=False)
+def create_new_state():
     """ create a new state """
     if not request.is_json:
         abort(400, description="Not a JSON")
-    req_state = request.get_json()
+    state_json = request.get_json()
 
-    if "name" not in req_state:
+    if "name" not in state_json:
         abort(400, description="Missing name")
 
-    all_state = State(**req_state)
-    storage.new(all_state)
+    new_state = State(**state_json)
+    storage.new(new_state)
     storage.save()
-    return all_state.to_dict(), 201
+    return new_state.to_dict(), 201
 
 
-@app_views.route("/states/<state_id>", methods=['PUT', 'GET'])
+@app_views.route("/states/<state_id>", methods=['PUT', 'GET'],
+                 strict_slashes=False)
 def update_state(state_id):
-    """ Updates a State object """
-    all_state = storage.get(State, state_id)
+    """ Updates state info """
+    state = storage.get(State, state_id)
 
-    if not all_state:
+    if not state:
         abort(404)
 
     if not request.is_json:
         abort(400, description="Not a JSON")
-    req_state = request.get_json()
+    state_json = request.get_json()
 
-    for obj, v in req_state.items():
-        if obj != "id" and obj != "updated_at" and obj != "created_at":
-            setattr(all_state, obj, v)
+    for x, y in state_json.items():
+        if x != "id" and x != "updated_at" and x != "created_at":
+            setattr(state, x, y)
     storage.save()
-    return all_state.to_dict(), 200
+    return state.to_dict(), 200
