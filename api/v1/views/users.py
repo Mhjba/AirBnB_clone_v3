@@ -17,8 +17,9 @@ def list_users():
     return jsonify(list_users)
 
 
-app_views.route('/users/<user_id>', methods=['GET'])
-def get_user(user_id):
+@app_views.route("/users/<string:user_id>", methods=['GET'],
+                 strict_slashes=False)
+def get_user_by_id(user_id):
     """
     Retrieve an user by id
     """
