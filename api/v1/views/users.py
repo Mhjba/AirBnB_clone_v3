@@ -10,22 +10,18 @@ from api.v1.views import app_views
 from flask import jsonify, request, abort
 
 
-@app_views.route("/users", methods=['GET'])
-def all_users():
-    """
-    Get all users
-    """
-    all_users = storage.all(User).values()
-    result = []
-    for user in all_users:
-        result.append(user.to_dict())
-    return jsonify(result)
+@app_views.route('/users', methods=['GET'])
+def list_users():
+    '''Retrieves a list of all User objects'''
+    list_users = [obj.to_dict() for obj in storage.all("User").values()]
+    return jsonify(list_users)
 
 
-@app_views.route("/users/<string:user_id>", methods=['GET'])
-def get_user(user_id):
+@app_views.route("/users/<string:user_id>", methods=['GET'],
+                 strict_slashes=False)
+def get_user_by_id(user_id):
     """
-    Get user by id
+    Retrieve an user by id
     """
     result = storage.get(User, user_id)
     if result is None:
@@ -33,8 +29,9 @@ def get_user(user_id):
     return jsonify(result.to_dict())
 
 
-@app_views.route("/users/<user_id>", methods=["DELETE"])
-def delete_user(user_id):
+@app_views.route("/users/<string:user_id>", methods=['DELETE'],
+                 strict_slashes=False)
+def delete_user_by_id(user_id):
     """
     Delete an user by id
     """
@@ -46,8 +43,9 @@ def delete_user(user_id):
     return jsonify({}), 200
 
 
-@app_views.route("/users", methods=["POST"])
-def create_user():
+@app_views.route("/users", methods=['POST'],
+                 strict_slashes=False)
+def create_new_user():
     """
     Create a new user
     """
@@ -66,8 +64,9 @@ def create_user():
     return new_user.to_dict(), 201
 
 
-@app_views.route("/users/<user_id>", methods=["PUT"])
-def update_user(user_id):
+@app_views.route("/users/<user_id>", methods=['PUT', 'GET'],
+                 strict_slashes=False)
+def update_user_by_id(user_id):
     """
     Update an user by id
     """
