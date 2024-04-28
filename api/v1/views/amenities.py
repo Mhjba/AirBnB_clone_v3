@@ -22,9 +22,10 @@ def get_amenities():
 def get_amenity(amenity_id):
     """ get amenity by id"""
     amenity = storage.get(Amenity, amenity_id)
-    if amenity is None:
+    if amenity:
+        return jsonify(amenity.to_dict())
+    else:
         abort(404)
-    return jsonify(amenity.to_dict())
 
 
 @app_views.route('/amenities/<amenity_id>', methods=['DELETE'])
@@ -63,4 +64,4 @@ def updates_amenity(amenity_id):
         if key not in ['id', 'created_at', 'updated_at']:
             setattr(obj, key, value)
     storage.save()
-    return jsonify(obj.to_dict())
+    return jsonify(obj.to_dict())y
