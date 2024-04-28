@@ -31,7 +31,7 @@ def delete_state(state_id):
     dl_state = models.storage.get(State, state_id)
     if dl_state is None:
         abort(404)
-    models.storage.delete(dl_state)
+    storage.delete(dl_state)
     storage.save()
     return jsonify({}), 200
 
