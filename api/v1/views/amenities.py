@@ -50,17 +50,16 @@ def create_amenity():
     return jsonify(obj.to_dict()), 201
 
 
-@app_views.route("/amenities/<amenity_id>", methods=["PUT"])
-def update_amenity(amenity_id):
-    """ Updates Amenity """
-    all_amenity = models.storage.get(Amenity, amenity_id)
-    obj_amenity = request.get_json()
-    if not all_amenity:
+@app_views.route('/amenities/<amenity_id>', methods=['PUT'])
+def updates_amenity(amenity_id):
+    """  """
+    if not request.get_json():
+        return make_response(jsonify({"error": "Not a JSON"}), 400)
+    obj = storage.get(Amenity, amenity_id)
+    if obj is None:
         abort(404)
-    if not obj_amenity:
-        abort(400, "Not a JSON")
-    objs = "name"
-    setattr(all_amenity, objs, all_amenity[objs])
-    all_amenity.save()
-
-    return jsonify(all_amenity.to_dict()), 200
+    for key, value in request.get_json().items():
+        if key not in ['id', 'created_at', 'updated_at']:
+            setattr(obj, key, value)
+    storage.save()
+    return jsonify(obj.to_dict()), 200
