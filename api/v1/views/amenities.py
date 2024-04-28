@@ -7,6 +7,7 @@ from flask import jsonify, abort, request, make_response
 from models import storage
 from models.amenity import Amenity
 from flasgger.utils import swag_from
+import models
 
 
 @app_views.route('/amenities/', methods=['GET'])
@@ -32,7 +33,7 @@ def delete_amenity(amenity_id):
     if dl_amenity is None:
         abort(404)
     dl_amenity.delete()
-    models.storage.save()
+    storage.save()
     return jsonify({})
 
 
@@ -60,5 +61,5 @@ def updates_amenity(amenity_id):
     for key, value in request.get_json().items():
         if key not in ['id', 'created_at', 'updated_at']:
             setattr(up_amenity, key, value)
-    models.storage.save()
+    storage.save()
     return jsonify(up_amenity.to_dict())
