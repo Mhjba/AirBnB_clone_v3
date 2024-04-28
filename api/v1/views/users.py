@@ -18,7 +18,7 @@ def list_users():
 
 @app_views.route("/users/<user_id>", methods=['GET'])
 def get_user(user_id):
-    """ Get User id """
+    """ Get User """
     gt_user = models.storage.get(User, user_id)
     if not gt_user:
         abort(404)
@@ -27,7 +27,7 @@ def get_user(user_id):
 
 @app_views.route('/users/<user_id>', methods=['DELETE'])
 def delete_user(user_id):
-    """ Deletes a User id """
+    """ Deletes a User """
     dl_user = models.storage.get(User, user_id)
     if dl_user is None:
         abort(404)
@@ -54,13 +54,12 @@ def create_user():
 
 @app_views.route('/users/<user_id>', methods=['PUT'])
 def updates_user(user_id):
-    """ Update an user id """
+    """ Update  user"""
     up_user = models.storage.get(User, user_id)
     if not up_user:
         abort(404)
     if not request.is_json:
         abort(400, "Not a JSON")
-
     user_obj = request.get_json()
     for objs, v in user_obj.items():
         if objs != "id" and objs != "updated_at" and objs != "created_at":
