@@ -68,3 +68,35 @@ def unlink_amenity_from_a_place(place_id, amenity_id):
     storage.save()
 
     return jsonify({})
+
+
+@app_views.route("/places/<place_id>/amenities/<amenity_id>", methods=["POST"])
+def link_amenity_to_a_place(place_id, amenity_id):
+    """Link amenity to a place.
+
+    Args:
+        place_id (str): ID of the place.
+        amenity_id (str): ID of the amenity.
+
+    Returns:
+        dict: The amenity linked.
+
+    Raises:
+        404: If the specified place_id or amenity_id does not exist.
+    """
+    place = storage.get(Place, place_id)
+    amenity = storage.get(Amenity, amenity_id)
+    if not place:
+        abort(404)
+    if not amenity:
+        abort(404)
+    if amenity in place.amenities:
+        return jsonify(amenity.to_dict())
+
+    if storage_type == "db":
+        place.amenities.append(amenity)
+    else:
+        place.amenity_ids.append(amenity.id)
+    storage.save()
+
+    return jsonify(amenity.to_dict()), 201
