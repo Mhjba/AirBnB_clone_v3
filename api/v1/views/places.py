@@ -95,3 +95,62 @@ def update_place_by_id(place_id):
         return jsonify(place.to_dict()), 200
     else:
         return abort(404)
+
+
+@app_views.route('/places_search', methods=['POST'], strict_slashes=False)
+def places_search():
+    """
+    Handles search feature in places
+    """
+    if request.get_json() is None:
+        abort(400, description="Not a JSON")
+
+    req_json = request.get_json()
+
+    if req_json and len(req_json):
+        req_states = req_json.get('states', None)
+        req_cities = req_json.get('cities', None)
+        req_amenities = req_json.get('amenities', None)
+
+    if not req_json or not len(req_json) or (
+            not req_states and
+            not req_cities and
+            not req_amenities):
+        places = storage.all(Place).values()
+        place_arr = [place.to_dict() for place in places]
+        return jsonify(place_arr)
+
+    place_arr = []
+    if req_states:
+        get_s = [storage.get(State, state_id) for state_id in req_states]
+        for state in get_s:
+            if state:
+                for city in state.cities:
+                    if city:
+                        for place in city.places:
+                            place_arr.append(place)
+
+    if req_cities:
+        get_c = [storage.get(City, city_id) for city_id in req_cities]
+        for city in get_c:
+            if city:
+                for place in city.places:
+                    if place not in place_arr:
+                        place_arr.append(place)
+
+    if req_amenities:
+        if not place_arr:
+            place_arr = storage.all(Place).values()
+        amen = [storage.get(Amenity, amenity_id)
+                for amenity_id in req_amenities]
+        place_arr = [place for place in place_arr
+                     if all([idx in place.amenities
+                            for idx in amen])]
+
+    res = []
+    for place in place_arr:
+        place_dict = place.to_dict()
+        place_dict.pop('amenities', None)
+        res.append(place_dict)
+
+    return jsonify(res)
