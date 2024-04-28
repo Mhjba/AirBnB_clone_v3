@@ -16,7 +16,7 @@ def get_cities(state_id):
     state = models.storage.get(State, state_id)
     if not state:
         return abort(404)
-    cities = [city.to_dict() for city in state.cities]
+    cities =[city.to_dict() for city in state.cities]
     return jsonify(cities)
 
 
@@ -55,30 +55,23 @@ def create_city(state_id):
     data = request.get_json()
     if "name" not in data:
         return abort(400, "Missing name")
-    data["state_id"] = state_id
+    data ["state_id"] = state_id
 
     city = City(**data)
     city.save()
     return jsonify(city.to_dict()), 201
 
 
-@app_views.route("/cities/<string:city_id>", methods=['PUT'])
+@app_views.route("/cities/<city_id>", methods=["PUT"])
 def update_city(city_id):
-    """ Update a city by id """
-    if request.content_type != "application/json":
-        return abort(400, "Not a JSON")
-    city = models.storage.get(City, city_id)
-    if city:
-        if not request.get_json():
-            return abort(400, "Not a JSON")
+    city = storage.get(City, city_id)
+    if not city:
+        abort(404)
+    if not request.get_json():
+        abort(400, "Not a JSON")
 
-        data = request.get_json()
-        ignore_keys = ["id", "state_id", "created_at", "updated_at"]
+    key = "name"
+    setattr(city, key, request.get_json().get(key))
+    city.save()
 
-        for k, v in data.items():
-            if k not in ignore_keys:
-                setattr(city, k, v)
-        city.save()
-        return jsonify(city.to_dict()), 200
-    else:
-        return abort(404)
+    return jsonify(city.to_dict())
