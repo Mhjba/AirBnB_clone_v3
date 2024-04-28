@@ -7,26 +7,27 @@ from models.state import State
 from api.v1.views import app_views
 from models.base_model import BaseModel
 from flask import Blueprint, jsonify, request, abort
-import models
 
 
-@app_views.route('/states/', methods=['GET'])
-def list_states():
+@app_views.route("/states", methods=["GET"], strict_slashes=False)
+def get_all_states():
     """ returns all states """
     lt_states = [obj.to_dict() for obj in storage.all("State").values()]
     return jsonify(lt_states)
 
 
-@app_views.route('/states/<state_id>', methods=['GET'])
+@app_views.route("/states/<string:state_id>", methods=['GET'],
+                 strict_slashes=False)
 def get_state(state_id):
     """ get state  """
-    gt_state = models.storage.get(State, state_id)
+    gt_state = storage.get(State, state_id)
     if gt_state is None:
         abort(404)
     return jsonify(gt_state.to_dict())
 
 
-@app_views.route('/states/<state_id>', methods=['DELETE'])
+@app_views.route("/states/<string:state_id>", methods=['DELETE'],
+                 strict_slashes=False)
 def delete_state(state_id):
     """ delete state """
     dl_state = models.storage.get(State, state_id)
@@ -37,8 +38,9 @@ def delete_state(state_id):
     return jsonify({}), 200
 
 
-@app_views.route('/states/', methods=['POST'])
-def create_state():
+@app_views.route("/states", methods=['POST'],
+                 strict_slashes=False)
+def create_new_state():
     """ create state """
     if not request.is_json:
         abort(400, description="Not a JSON")
