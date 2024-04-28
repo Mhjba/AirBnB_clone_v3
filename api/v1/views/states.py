@@ -6,17 +6,22 @@ from models import storage
 from models.state import State
 from api.v1.views import app_views
 from models.base_model import BaseModel
-from flask import Blueprint, jsonify, request, abort
+from flask import Flask, Blueprint, jsonify, request, url_for, abort
 
 
-@app_views.route('/states/', methods=['GET'])
-def list_states():
+@app_views.route("/states", methods=["GET"], strict_slashes=False)
+def get_all_states():
     """ returns all states """
-    lt_states = [obj.to_dict() for obj in storage.all("State").values()]
-    return jsonify(lt_states)
+    states = storage.all(State).values()
+    states_json = []
+
+    for state in states:
+        states_json.append(state.to_dict())
+    return jsonify(states_json)
 
 
-@app_views.route('/states/<state_id>', methods=['GET'])
+@app_views.route("/states/<string:state_id>", methods=['GET'],
+                 strict_slashes=False)
 def get_state(state_id):
     """ get a state by id """
     req_state = storage.get(State, state_id)
@@ -25,7 +30,8 @@ def get_state(state_id):
     return jsonify(req_state.to_dict())
 
 
-@app_views.route('/states/<state_id>', methods=['DELETE'])
+@app_views.route("/states/<string:state_id>", methods=['DELETE'],
+                 strict_slashes=False)
 def delete_state(state_id):
     """ delete a state by id """
     req_state = storage.get(State, state_id)
@@ -36,8 +42,9 @@ def delete_state(state_id):
     return jsonify({}), 200
 
 
-@app_views.route('/states/', methods=['POST'])
-def create_state():
+@app_views.route("/states", methods=['POST'],
+                 strict_slashes=False)
+def create_new_state():
     """ create a new state """
     if not request.is_json:
         abort(400, description="Not a JSON")
@@ -52,8 +59,9 @@ def create_state():
     return new_state.to_dict(), 201
 
 
-@app_views.route('/states/<state_id>', methods=['PUT'])
-def updates_state(state_id):
+@app_views.route("/states/<state_id>", methods=['PUT', 'GET'],
+                 strict_slashes=False)
+def update_state(state_id):
     """ Updates state info """
     state = storage.get(State, state_id)
 
