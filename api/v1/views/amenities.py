@@ -13,7 +13,7 @@ import models
 @app_views.route('/amenities/', methods=['GET'])
 def list_amenities():
     """ list of amenities """
-    lt_amenities = [obj.to_dict() for obj in models.storage.all("Amenity").values()]
+    lt_amenities = [obj.to_dict() for obj in storage.all("Amenity").values()]
     return jsonify(lt_amenities)
 
 
@@ -58,8 +58,8 @@ def updates_amenity(amenity_id):
     up_amenity = models.storage.get(Amenity, amenity_id)
     if up_amenity is None:
         abort(404)
-    for key, value in request.get_json().items():
-        if key not in ['id', 'created_at', 'updated_at']:
-            setattr(up_amenity, key, value)
+    for k, v in request.get_json().items():
+        if k not in ['id', 'created_at', 'updated_at']:
+            setattr(up_amenity, k, v)
     storage.save()
-    return jsonify(up_amenity.to_dict())
+    return jsonify(up_amenity.to_dict()), 200
