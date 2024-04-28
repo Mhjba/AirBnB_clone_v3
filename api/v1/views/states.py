@@ -9,15 +9,14 @@ from models.base_model import BaseModel
 from flask import Blueprint, jsonify, request, abort
 
 
-@app_views.route("/states", methods=["GET"], strict_slashes=False)
-def get_all_states():
+@app_views.route('/states/', methods=['GET'])
+def list_states():
     """ returns all states """
     lt_states = [obj.to_dict() for obj in storage.all("State").values()]
     return jsonify(lt_states)
 
 
-@app_views.route("/states/<string:state_id>", methods=['GET'],
-                 strict_slashes=False)
+@app_views.route('/states/<state_id>', methods=['GET'])
 def get_state(state_id):
     """ get state  """
     gt_state = storage.get(State, state_id)
