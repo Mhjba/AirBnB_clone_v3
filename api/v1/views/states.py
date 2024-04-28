@@ -6,66 +6,62 @@ from models import storage
 from models.state import State
 from api.v1.views import app_views
 from models.base_model import BaseModel
-from flask import Flask, Blueprint, jsonify, request, url_for, abort
+from flask import Blueprint, jsonify, request, abort
 
 
 @app_views.route("/states", methods=["GET"])
-def get_all_states():
-    """ returns all states """
-    list_states = [obj.to_dict() for obj in storage.all("State").values()]
-    return jsonify(list_states)
+def all_states():
+    """ get all states """
+    all_states = [obj.to_dict() for obj in storage.all("State").values()]
+    return jsonify(all_states)
 
 
 @app_views.route('/states/<state_id>', methods=['GET'])
 def get_state(state_id):
-    """ get a state by id """
-    req_state = storage.get(State, state_id)
-    if req_state is None:
-        abort(404)
-    return jsonify(req_state.to_dict())
+    """ get state """
+    gt_state = storage.get(State, state_id)
+    if gt_state is None:
+        return abort(404)
+    return jsonify(gt_state.to_dict())
 
 
 @app_views.route('/states/<state_id>', methods=['DELETE'])
 def delete_state(state_id):
-    """ delete a state by id """
-    req_state = storage.get(State, state_id)
-    if req_state is None:
-        abort(404)
-    storage.delete(req_state)
+    """ delete state """
+    dl_state = storage.get(State, state_id)
+    if dl_state is None:
+        return abort(404)
+    storage.delete(dl_state)
     storage.save()
     return jsonify({}), 200
 
 
 @app_views.route('/states/', methods=['POST'])
 def create_state():
-    """ create a new state """
+    """ create state """
     if not request.is_json:
-        abort(400, description="Not a JSON")
-    state_json = request.get_json()
-
-    if "name" not in state_json:
-        abort(400, description="Missing name")
-
-    new_state = State(**state_json)
-    storage.new(new_state)
+        return abort(400, description="Not a JSON")
+    js = request.get_json()
+    if "name" not in js:
+        return abort(400, description="Missing name")
+    cr_state = State(**js)
+    storage.new(cr_state)
     storage.save()
-    return new_state.to_dict(), 201
+    return cr_state.to_dict(), 201
 
 
 @app_views.route('/states/<state_id>', methods=['PUT'])
 def updates_state(state_id):
     """ Updates state info """
-    state = storage.get(State, state_id)
+    up_state = storage.get(State, state_id)
 
-    if not state:
-        abort(404)
-
+    if not up_state:
+        return abort(404)
     if not request.is_json:
-        abort(400, description="Not a JSON")
-    state_json = request.get_json()
-
-    for x, y in state_json.items():
-        if x != "id" and x != "updated_at" and x != "created_at":
-            setattr(state, x, y)
+        return abort(400, description="Not a JSON")
+    js = request.get_json()
+    for key, value in js.items():
+        if key != "id" and key != "updated_at" and key != "created_at":
+            setattr(up_state, key, value)
     storage.save()
-    return state.to_dict(), 200
+    return up_state.to_dict(), 200
