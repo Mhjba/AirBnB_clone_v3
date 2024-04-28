@@ -6,18 +6,14 @@ from models import storage
 from models.state import State
 from api.v1.views import app_views
 from models.base_model import BaseModel
-from flask import Flask, Blueprint, jsonify, request, url_for, abort
+from flask import Blueprint, jsonify, request, abort
 
 
 @app_views.route('/states/', methods=['GET'])
 def list_states():
     """ returns all states """
-    states = storage.all(State).values()
-    states_json = []
-
-    for state in states:
-        states_json.append(state.to_dict())
-    return jsonify(states_json)
+    lt_states = [obj.to_dict() for obj in storage.all("State").values()]
+    return jsonify(lt_states)
 
 
 @app_views.route('/states/<state_id>', methods=['GET'])
