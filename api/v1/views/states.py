@@ -9,7 +9,7 @@ from models.base_model import BaseModel
 from flask import Blueprint, jsonify, request, abort
 
 
-@app_views.route("/states", methods=["GET"], strict_slashes=False)
+@app_views.route("/states", methods=["GET"])
 def get_all_states():
     """ returns all states """
     lt_states = [obj.to_dict() for obj in storage.all("State").values()]
