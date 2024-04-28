@@ -9,6 +9,7 @@ from models.base_model import BaseModel
 from flask import Blueprint, jsonify, request, abort
 import models
 
+
 @app_views.route('/states/', methods=['GET'])
 def list_states():
     """ returns all states """
