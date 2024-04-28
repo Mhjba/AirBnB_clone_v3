@@ -13,21 +13,21 @@ import models
 @app_views.route("/states/<string:state_id>/cities", methods=['GET'])
 def get_cities(state_id):
     """ get all cities by state id """
-    state = models.storage.get(State, state_id)
-    if not state:
+    all_state = models.storage.get(State, state_id)
+    if not all_state:
         abort(404, "State not found")
-    cities = [city.to_dict() for city in state.cities]
-    return jsonify(cities)
+    list_cities = [city.to_dict() for city in all_state.cities]
+    return jsonify(list_cities)
 
 
 @app_views.route("/cities/<string:city_id>", methods=['GET'])
 def get_city(city_id):
     """ get a city by id """
-    city = models.storage.get(City, city_id)
-    if city:
-        return jsonify(city.to_dict())
+    all_city = models.storage.get(City, city_id)
+    if all_city:
+        return jsonify(all_city.to_dict())
     else:
-        return abort(404)
+        abort(404, "City not found")
 
 
 @app_views.route("/cities/<string:city_id>", methods=['DELETE'])
