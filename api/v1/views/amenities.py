@@ -7,59 +7,60 @@ from flask import jsonify, abort, request, make_response
 from models import storage
 from models.amenity import Amenity
 from flasgger.utils import swag_from
+import models
 
 
 @app_views.route('/amenities/', methods=['GET'])
 def list_amenities():
-    """ get amenities by id """
-    all_list = [obj.to_dict() for obj in storage.all(Amenity).values()]
-    return jsonify(all_list)
+    """ get amenities  """
+    all_amenity = [obj.to_dict() for obj in models.storage.all(Amenity).values()]
+    return jsonify(all_amenity)
 
 
 @app_views.route('/amenities/<amenity_id>', methods=['GET'])
 def get_amenity(amenity_id):
-    """ get amenity by id"""
-    amenity = storage.get(Amenity, amenity_id)
-    if amenity is None:
+    """ get amenity """
+    all_amenity = models.storage.get(Amenity, amenity_id)
+    if all_amenity is None:
         abort(404)
-    return jsonify(amenity.to_dict())
+    return jsonify(all_amenity.to_dict())
 
 
 @app_views.route('/amenities/<amenity_id>', methods=['DELETE'])
 def delete_amenity(amenity_id):
-    """ delete amenity by id"""
-    amenity = storage.get(Amenity, amenity_id)
-    if amenity is None:
+    """ delete amenity """
+    all_amenity = models.storage.get(Amenity, amenity_id)
+    if all_amenity is None:
         abort(404)
-    amenity.delete()
-    storage.save()
+    all_amenity.delete()
+    models.storage.save()
     return jsonify({})
 
 
 @app_views.route('/amenities/', methods=['POST'])
 def create_amenity():
-    """ create new instance """
+    """ create new amenity """
     if not request.get_json():
         return make_response(jsonify({"error": "Not a JSON"}), 400)
     if 'name' not in request.get_json():
         return make_response(jsonify({"error": "Missing name"}), 400)
-    js = request.get_json()
-    obj = Amenity(**js)
-    obj.save()
+    amenity = request.get_json()
+    all_amenity = Amenity(**amenity)
+    all_amenity.save()
     return jsonify(obj.to_dict()), 201
 
 
 @app_views.route("/amenities/<amenity_id>", methods=["PUT"])
 def update_amenity(amenity_id):
-    amenity = storage.get(Amenity, amenity_id)
-    payload = request.get_json()
-    if not amenity:
+    """ Updates Amenity """
+    all_amenity = models.storage.get(Amenity, amenity_id)
+    obj_amenity = request.get_json()
+    if not all_amenity:
         abort(404)
-    if not payload:
+    if not obj_amenity:
         abort(400, "Not a JSON")
+    objs = "name"
+    setattr(all_amenity, objs, all_amenity[objs])
+    all_amenity.save()
 
-    key = "name"
-    setattr(amenity, key, payload[key])
-    amenity.save()
-
-    return jsonify(amenity.to_dict()), 200
+    return jsonify(all_amenity.to_dict()), 200
