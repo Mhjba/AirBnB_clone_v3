@@ -12,11 +12,8 @@ import models
 @app_views.route('/states/', methods=['GET'])
 def list_states():
     """ returns all states """
-    states = storage.all(State).values()
-    states_json = []
-    for state in states:
-        states_json.append(state.to_dict())
-    return jsonify(states_json)
+    lt_states = [obj.to_dict() for obj in storage.all("State").values()]
+    return jsonify(lt_states)
 
 
 @app_views.route('/states/<state_id>', methods=['GET'])
@@ -35,7 +32,7 @@ def delete_state(state_id):
     if dl_state is None:
         abort(404)
     models.storage.delete(dl_state)
-    models.storage.save()
+    storage.save()
     return jsonify({}), 200
 
 
@@ -50,13 +47,14 @@ def create_state():
         abort(400, description="Missing name")
 
     objs_state = State(**ct_json)
-    models.storage.new(objs_state)
-    models.storage.save()
+    storage.new(objs_state)
+    storage.save()
     return objs_state.to_dict(), 201
 
 
-@app_views.route('/states/<state_id>', methods=['PUT'])
-def updates_state(state_id):
+@app_views.route("/states/<state_id>", methods=['PUT', 'GET'],
+                 strict_slashes=False)
+def update_state(state_id):
     """ Updates state """
     up_state = models.storage.get(State, state_id)
     if not up_state:
