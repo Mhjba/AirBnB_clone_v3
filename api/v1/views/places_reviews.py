@@ -1,40 +1,37 @@
 #!/usr/bin/python3
-""" Handles everything related to reviews """
+""" places reviews """
 
 from models import storage
 from models.review import Review
 from api.v1.views import app_views
 from flask import abort, jsonify, request
+import models
 
 
 @app_views.route("/places/<place_id>/reviews", methods=['GET'])
-def get_review_by_place(place_id):
-    """Retrieves by id"""
-    req_place = storage.get("Place", place_id)
-    if not req_place:
-        abort(404)
-    return jsonify([r.to_dict() for r in req_place.reviews])
+def get_place_reviewe(place_id):
+    """ get place reviewe """
+    gt_place = models.storage.get("Place", place_id)
+    if not gt_place:
+        return abort(404)
+    return jsonify([pc.to_dict() for pc in gt_place.reviews])
 
 
 @app_views.route("/reviews/<review_id>", methods=['GET'])
-def get_review_by_id(review_id):
-    """
-    Reyrieves a review by id
-    """
-    req_review = storage.get("Review", review_id)
-    if not req_review:
-        abort(404)
-    return jsonify(req_review.to_dict())
+def get_review(review_id):
+    """ get review """
+    gt_review = models.storage.get("Review", review_id)
+    if not gt_review:
+        return abort(404)
+    return jsonify(gt_review.to_dict())
 
 
 @app_views.route("/reviews/<review_id>", methods=['DELETE'])
-def delete_review_by_id(review_id):
-    """
-    Delete a review with the given id
-    """
-    req_review = storage.get("Review", review_id)
-    if not req_review:
-        abort(404)
-    storage.delete(req_review)
-    storage.save()
+def delete_review(review_id):
+    """ Delete review """
+    dl_review = models.storage.get("Review", review_id)
+    if not dl_review:
+        return abort(404)
+    models.storage.delete(dl_review)
+    models.storage.save()
     return jsonify({}), 200
