@@ -8,17 +8,18 @@ from models.place import Place
 from models.amenity import Amenity
 from api.v1.views import app_views
 from flask import abort, jsonify, request
+import models
 
 
 @app_views.route("/cities/<string:city_id>/places", methods=['GET'])
 def get_places_city(city_id):
     """ get all places """
-    get_city = storage.get(City, city_id)
-    if get_city is None:
+    gt_city = models.storage.get(City, city_id)
+    if gt_city is None:
         abort(404)
-    place_inst = get_city.places
+    places = get_city.places
     all_places = []
-    for item in place_inst:
+    for item in places:
         all_places.append(item.to_dict())
     return jsonify(all_places)
 
