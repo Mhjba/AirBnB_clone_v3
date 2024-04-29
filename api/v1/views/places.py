@@ -11,7 +11,7 @@ from flask import abort, jsonify, request
 
 
 @app_views.route("/cities/<string:city_id>/places", methods=['GET'])
-def list_places_of_city(city_id):
+def get_places_by_city(city_id):
     """ get all places """
     all_city = models.storage.get(City, city_id)
     if not all_city:
