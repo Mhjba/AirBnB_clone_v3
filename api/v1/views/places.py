@@ -14,8 +14,8 @@ import models
 @app_views.route("/cities/<string:city_id>/places", methods=['GET'])
 def get_places_city(city_id):
     """ get all places """
-    gt_city = models.storage.get(City, city_id)
-    if gt_city is None:
+    get_city = models.storage.get(City, city_id)
+    if get_city is None:
         abort(404)
     places = get_city.places
     all_places = []
