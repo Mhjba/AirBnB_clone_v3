@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-""" Handles everything related to places """
+""" places """
 
 from models import storage
 from models.city import City
@@ -25,8 +25,7 @@ def get_places_by_city(city_id):
     return jsonify(all_places)
 
 
-
-@app_views.route("/places/<string:place_id>", methods=['GET'])
+@app_views.route('/places/<place_id>', methods=['GET'])
 def get_place(place_id):
     """ get place """
     gt_place = models.storage.get(Place, place_id)
@@ -35,57 +34,51 @@ def get_place(place_id):
     return jsonify(gt_place.to_dict())
 
 
-@app_views.route("/places/<string:place_id>", methods=['DELETE'])
-def delete_place_by_id(place_id):
-    """
-    Delete a place by id
-    """
-    place_inst = storage.get(Place, place_id)
-    if place_inst is None:
-        abort(404)
-    storage.delete(place_inst)
-    storage.save()
+@app_views.route('/places/<place_id>', methods=['DELETE'])
+def delete_place(place_id):
+    """ Delete place """
+    dl_place = models.storage.get(Place, place_id)
+    if dl_place is None:
+        return abort(404)
+    models.storage.delete(dl_place)
+    models.storage.save()
     return jsonify({}), 200
 
 
-@app_views.route('/cities/<string:city_id>/places', methods=['POST'])
-def create_new_place(city_id):
-    """
-    Create a new place
-    """
-    get_city = storage.get(City, city_id)
-    if get_city is None:
+@app_views.route('/cities/<city_id>/places', methods=['POST'])
+def create_place(city_id):
+    """ Create place """
+    cr_place = models.storage.get(City, city_id)
+    if cr_place is None:
+        return abort(404)
+    obj_place = request.get_json()
+    if obj_place is None:
+        return abort(400, 'Not a JSON')
+    if 'user_id' not in obj_place:
+        return abort(400, 'Missing user_id')
+    user = models.storage.get("User", obj_place['user_id'])
+    if user is None:
         abort(404)
-    req_json = request.get_json()
-    if req_json is None:
-        abort(400, 'Not a JSON')
-    if 'user_id' not in req_json:
-        abort(400, 'Missing user_id')
-    user_data = storage.get("User", req_json['user_id'])
-    if user_data is None:
-        abort(404)
-    if 'name' not in req_json:
-        abort(400, 'Missing name')
-    req_json['city_id'] = city_id
-    place_inst = Place(**req_json)
-    place_inst.save()
-    return jsonify(place_inst.to_dict()), 201
+    if 'name' not in obj_place:
+        return abort(400, 'Missing name')
+    obj_place['city_id'] = city_id
+    places = Place(**obj_place)
+    places.save()
+    return jsonify(places.to_dict()), 201
 
 
 @app_views.route('/places/<place_id>', methods=['PUT'])
 def updates_place(place_id):
-    """
-    Update an place by id
-    """
-    place_inst = storage.get(Place, place_id)
-    if place_inst is None:
+    """ Update place """
+    up_place = models.storage.get(Place, place_id)
+    if up_place is None:
         abort(404)
-    req_json = request.get_json()
-    if req_json is None:
+    obj_place = request.get_json()
+    if obj_place is None:
         abort(400, 'Not a JSON')
-    for idx, idy in req_json.items():
-        if idx not in ['id', 'city_id', 'user_id', 'updated_at',
+    for k, v in obj_place.items():
+        if k not in ['id', 'city_id', 'user_id', 'updated_at',
                        'created_at']:
-            setattr(place_inst, idx, idy)
-    place_inst.save()
-    return jsonify(place_inst.to_dict()), 200
+            setattr(up_place, k, v)
+    up_place.save()
+    return jsonify(up_place.to_dict()), 200
