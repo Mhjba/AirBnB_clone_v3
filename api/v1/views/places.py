@@ -14,10 +14,10 @@ import models
 @app_views.route("/cities/<string:city_id>/places", methods=['GET'])
 def get_places_city(city_id):
     """ get all places """
-    get_city = models.storage.get(City, city_id)
-    if get_city is None:
+    gt_city = models.storage.get(City, city_id)
+    if gt_city is None:
         abort(404)
-    places = get_city.places
+    places = gt_city.places
     all_places = []
     for item in places:
         all_places.append(item.to_dict())
@@ -64,20 +64,3 @@ def create_place(city_id):
     places = Place(**obj_place)
     places.save()
     return jsonify(places.to_dict()), 201
-
-
-@app_views.route('/places/<place_id>', methods=['PUT'])
-def updates_place(place_id):
-    """ Update place """
-    up_place = models.storage.get(Place, place_id)
-    if up_place is None:
-        abort(404)
-    obj_place = request.get_json()
-    if obj_place is None:
-        abort(400, 'Not a JSON')
-    for k, v in obj_place.items():
-        if k not in ['id', 'city_id', 'user_id', 'updated_at',
-                       'created_at']:
-            setattr(up_place, k, v)
-    up_place.save()
-    return jsonify(up_place.to_dict()), 200
