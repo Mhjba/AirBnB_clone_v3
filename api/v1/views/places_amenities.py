@@ -9,7 +9,7 @@ from models import storage_t as storage_type
 from models.amenity import Amenity
 
 
-@app_views.route('/places/<place_id>/amenities/', methods=['GET'])
+@app_views.route("/places/<place_id>/amenities")
 def get_place_amenity(place_id):
     """ get amenities place """
     place = storage.get(Place, place_id)
